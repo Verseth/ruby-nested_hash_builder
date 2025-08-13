@@ -31,15 +31,9 @@ module NestedHashBuilder
     alias build call
   end
 
-  module ProxyConstants
-    T = ::T
-  end
-
   # Object that is the receiver of all
   # the building methods.
-  class Proxy < ::BasicObject
-    include ProxyConstants
-
+  class Proxy
     #: (?base: Hash[untyped, untyped], ?symbolize: bool) -> void
     def initialize(base: {}, symbolize: true)
       @hash = base.dup
