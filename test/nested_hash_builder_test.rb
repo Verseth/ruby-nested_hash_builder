@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 require 'test_helper'
@@ -74,6 +75,35 @@ class NestedHashBuilderTest < Minitest::Test
       assert_equal expected, hash
     end
 
+    should 'build a nested hash and subscript' do
+      hash = ::NestedHashBuilder.call do |h|
+        h.name 'Ruby'
+        h.price :priceless
+        h.description = "Programmer's best friend"
+        h['NEW-FEATURES'] do
+          h['typing'] = :dynamic
+          h.metaprogramming true
+          h.hash! :syntax do
+            h.type :pythonic
+          end
+        end
+      end
+
+      expected = {
+        name:           'Ruby',
+        price:          :priceless,
+        description:    "Programmer's best friend",
+        'NEW-FEATURES': {
+          typing:          :dynamic,
+          metaprogramming: true,
+          syntax:          {
+            type: :pythonic,
+          },
+        },
+      }
+      assert_equal expected, hash
+    end
+
     should 'build a nested hash with symbolize false' do
       hash = ::NestedHashBuilder.call(symbolize: false) do |h|
         h.name 'Ruby'
@@ -82,7 +112,7 @@ class NestedHashBuilderTest < Minitest::Test
         h.features do
           h.typing = :dynamic
           h.metaprogramming true
-          h.hash! 'syntax' do
+          h.hash! :syntax do
             h.type :pythonic
           end
         end

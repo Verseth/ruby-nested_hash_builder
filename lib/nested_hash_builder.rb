@@ -22,13 +22,19 @@ require_relative 'nested_hash_builder/version'
 #
 module NestedHashBuilder
   class << self
-    #: (?base: Hash[untyped, untyped], ?symbolize: bool) { (Proxy) -> void } -> Hash[untyped, untyped]
+    #: (?base: Hash[untyped, untyped], ?symbolize: bool) { (untyped) -> void } -> Hash[untyped, untyped]
     def call(base: {}, symbolize: true, &block)
       block.call(proxy = Proxy.new(base: base, symbolize: symbolize))
       proxy.to_h
     end
 
     alias build call
+
+    #: (?base: Hash[untyped, untyped], ?symbolize: bool) { (Proxy) -> void } -> Hash[untyped, untyped]
+    def build!(base: {}, symbolize: true, &block)
+      block.call(proxy = Proxy.new(base: base, symbolize: symbolize))
+      proxy.to_h
+    end
   end
 
   # Object that is the receiver of all
@@ -65,6 +71,22 @@ module NestedHashBuilder
       @current_parent[name] = value
       @hash
     end
+    alias set! key!
+    alias []= key!
+
+    # Add a key with the given name to the hash and create a nested hash.
+    #
+    #: (String | Symbol) { -> void } -> void
+    def [](name, &block)
+      name =
+        if @symbolize
+          name.to_sym
+        else
+          name.to_s
+        end
+
+      hash!(name, &block)
+    end
 
     #: { (Proxy) -> void } -> Hash[untyped, untyped]
     def entry!(&block)
@@ -77,6 +99,13 @@ module NestedHashBuilder
     #
     #: (String | Symbol) -> void
     def hash!(name)
+      name =
+        if @symbolize
+          name.to_sym
+        else
+          name.to_s
+        end
+
       previous_parent = @current_parent
       @current_parent = (@current_parent[name] ||= {})
       yield
@@ -165,7 +194,7 @@ module NestedHashBuilder
     private
 
     def builder_method?(name)
-      !name.end_with?('?') && !name.end_with?('!')
+      name.match(/^[a-zA-Z]/) && !name.end_with?('?') && !name.end_with?('!')
     end
 
     def method_missing(method_name, *args, &block)

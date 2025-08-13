@@ -32,7 +32,10 @@ hash = NestedHashBuilder.build do |h|
       h.city "Anytown"
       h.zip "12345"
     end
-    h.key!("SOME:STRANGE:KEY", 2)
+    h["SOME:STRANGE:KEY"] = 2
+    h["another-strange-key"] do
+      h.foo "bar"
+    end
     h.array!(:contacts) do |c|
       c << h.entry! do |e|
         e.email "john@example.com"
@@ -56,6 +59,9 @@ end
 #       zip: "12345"
 #     },
 #     "SOME:STRANGE:KEY": 2,
+#     "another-strange-key": {
+#       foo: "bar",
+#     },
 #     contacts: [
 #       {
 #         email: "john@example.com",
