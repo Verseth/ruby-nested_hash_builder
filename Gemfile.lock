@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nested_hash_builder (0.1.0)
+    nested_hash_builder (0.1.1)
       sorbet-runtime (>= 0.5)
 
 GEM

@@ -31,9 +31,15 @@ module NestedHashBuilder
     alias build call
   end
 
+  module ProxyConstants
+    T = ::T
+  end
+
   # Object that is the receiver of all
   # the building methods.
   class Proxy < ::BasicObject
+    include ProxyConstants
+
     #: (?base: Hash[untyped, untyped], ?symbolize: bool) -> void
     def initialize(base: {}, symbolize: true)
       @hash = base.dup
@@ -123,7 +129,7 @@ module NestedHashBuilder
     # @param names [Array<Symbol>]
     #: (*Symbol | String) -> bool
     def key?(*names)
-      !::T.unsafe(self).dig!(*names).nil?
+      !T.unsafe(self).dig!(*names).nil?
     end
 
     # Gets a value of a particular key in the current context.
@@ -154,7 +160,7 @@ module NestedHashBuilder
     #
     #: (*Symbol | String) -> bool
     def local_key?(*names)
-      !::T.unsafe(self).local_dig!(*names).nil?
+      !T.unsafe(self).local_dig!(*names).nil?
     end
 
     #: -> Hash[Symbol | String, untyped]
@@ -162,14 +168,20 @@ module NestedHashBuilder
       @hash
     end
 
+    private
+
+    def builder_method?(name)
+      !name.end_with?('?') && !name.end_with?('!')
+    end
+
     def method_missing(method_name, *args, &block)
-      super if method_name.end_with?('?') || method_name.end_with?('!')
+      super unless builder_method?(method_name)
 
       key!(method_name, args.first, &block)
     end
 
     def respond_to_missing?(method_name, *_args)
-      return false if method_name.end_with?('?') || method_name.end_with?('!')
+      return false if builder_method?(method_name)
 
       true
     end
