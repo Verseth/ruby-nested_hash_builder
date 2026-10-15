@@ -12,6 +12,13 @@ Add changes in new features here. Do not change the gem's version in pull/merge 
 ### Changes
 -
 
+## [0.2.1] - 2026-10-15
+
+[Diff](https://github.com/Verseth/ruby-nested_hash_builder/compare/v0.2.0...v0.2.1)
+
+### Changes
+- Add MIT license
+
 ## [0.2.0] - 2025-08-13
 
 [Diff](https://github.com/Verseth/ruby-nested_hash_builder/compare/v0.1.0...v0.2.0)
